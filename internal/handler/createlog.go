@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"net/http"
 	"server/internal/model"
 	"strconv"
 
@@ -9,7 +10,7 @@ import (
 )
 
 // 获取发来的form数据
-func GetLog(c *gin.Context) {
+func CreateLog(c *gin.Context) {
 	log := new(model.Log) // 创建一个log对象，接收
 	c.ShouldBind(&log)
 	logcontents := make([]model.LogContent, log.Count) // 根据count来决定创建多大的content切片
@@ -21,5 +22,7 @@ func GetLog(c *gin.Context) {
 	}
 
 	model.CreateLog(log, logcontents) // 将获取的数据传入model和数据库进行交互
-
+	c.JSON(http.StatusOK,gin.H{
+		"status":"success",
+	})
 }

@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+
 	"server/utils"
 
 	"github.com/jinzhu/gorm"
@@ -28,10 +29,9 @@ var (
 	db *gorm.DB
 )
 
-//初始化一个数据库连接
+// 拿到在utils中已经初始化好的连接
 func init() {
-	d, _ := utils.Conn("mysql", "root", "123456", "192.168.160.128", "3306", "server")
-	db = d
+	db = utils.DB
 }
 
 func CreateLog(log *Log, logcontents []LogContent) {
@@ -46,30 +46,29 @@ func CreateLog(log *Log, logcontents []LogContent) {
 		fmt.Println("覆盖游戏玩法具体信息...")
 
 		id := logcon.Id               // 拿到游戏tab对应的唯一id
-		db.AutoMigrate(&LogContent{}) // 操作存放logcontent的表
 
 		var count int
 		db.Table("log_contents").Where("log_id=?", id).Count(&count) // 获取游戏的tab下有几条记录
-			for _, logcontent := range logcontents { // 遍历收到的切片
-				contentcon := LogContent{}                                                           // 准备一个LogContent容器，装查询到的数据
-				logcontent.LogId = id                                                                // 将对应的logcontents切片中的logid全部赋值上id值以形成联系
-				db.Where("log_id=? AND update_time=?", id, logcontent.UpdateTime).First(&contentcon) // 查询游戏具体玩法的某个时间是否已经有更新详情
-				if contentcon.Id != 0 {                                                              // 若是有 则覆盖
-					contentcon.Content = logcontent.Content
-					db.Save(&contentcon)
-					fmt.Println("编号为", id, "的tab，更新时间戳为", logcontent.UpdateTime, "的玩法更新已经覆盖原玩法")
-				} else { // 若是没有 则新建
-					db.Create(&logcontent)
-					fmt.Println("编号为", id, "的tab，更新时间戳为", logcontent.UpdateTime, "的玩法更新已经新建")
-				}
+		for _, logcontent := range logcontents {                     // 遍历收到的切片
+			contentcon := LogContent{}                                                           // 准备一个LogContent容器，装查询到的数据
+			logcontent.LogId = id                                                                // 将对应的logcontents切片中的logid全部赋值上id值以形成联系
+			db.Where("log_id=? AND update_time=?", id, logcontent.UpdateTime).First(&contentcon) // 查询游戏具体玩法的某个时间是否已经有更新详情
+			if contentcon.Id != 0 {                                                              // 若是有 则覆盖
+				contentcon.Content = logcontent.Content
+				db.Save(&contentcon)
+				fmt.Println("编号为", id, "的tab，更新时间戳为", logcontent.UpdateTime, "的玩法更新已经覆盖原玩法")
+			} else { // 若是没有 则新建
+				db.Create(&logcontent)
+				fmt.Println("编号为", id, "的tab，更新时间戳为", logcontent.UpdateTime, "的玩法更新已经新建")
 			}
+		}
 	} else { // 不存在则直接插入
 		db.Create(&log)
+		db.Where("game_id=? AND tab=?", log.GameId, log.Tab).First(&logcon) // 获取插入后的id
 		id := logcon.Id
 		fmt.Println("新建游戏玩法具体信息...")
-		db.AutoMigrate(&LogContent{})
 		for _, logcontent := range logcontents {
-			logcontent.LogId = id
+			logcontent.LogId = id // 给logcontent的log_id赋值
 			db.Create(&logcontent)
 			fmt.Println("编号为", id, "的tab，更新时间戳为", logcontent.UpdateTime, "的玩法更新已经新建")
 		}
