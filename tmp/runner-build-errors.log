@@ -1,3 +1,0 @@
-# server/internal/handler
-internal\handler\editlog.go:19:16: undefined: http
-internal\handler\editlog.go:21:16: undefined: http
