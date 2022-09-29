@@ -12,12 +12,13 @@ func EditLog(c *gin.Context) {
 	log := &model.Log{}
 	req := &Request{}
 	c.ShouldBindJSON(log)
-	result, msg := model.EditLog(log)
-	req.Msg = msg
-	if result == false {
+	var msg string
+	var err error
+	if msg,err = model.EditLog(log);err != nil{
 		req.Status = http.StatusBadRequest
-	} else {
+	}else{
 		req.Status = http.StatusOK
 	}
+	req.Msg = msg
 	c.JSON(req.Status, req)
 }

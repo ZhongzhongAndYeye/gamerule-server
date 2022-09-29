@@ -10,6 +10,17 @@ import (
 func GetContent(c *gin.Context) {
 	idInfo := &IdInfo{}
 	c.ShouldBindJSON(idInfo)
-	logcontents := model.GetContent(idInfo.Id)
-	c.JSON(http.StatusOK, logcontents)
+	var logcontents []model.LogContent
+	var msg string
+	var err error
+	var status int
+	if logcontents, msg, err = model.GetContent(idInfo.Id); err != nil {
+		status = http.StatusBadRequest
+	} else {
+		status = http.StatusOK  
+	}
+	c.JSON(status, gin.H{
+		"msg":         msg,
+		"logcontents": logcontents,
+	})
 }

@@ -15,6 +15,15 @@ type TabInfo struct {
 func GetLog(c *gin.Context) {
 	tabInfo := &TabInfo{}
 	c.ShouldBindJSON(tabInfo)
-	logs := model.GetLog(tabInfo.GameId, tabInfo.Tab)
-	c.JSON(http.StatusOK,logs)
+	logs, err, msg := model.GetLog(tabInfo.GameId, tabInfo.Tab)
+	var status int
+	if err != nil {
+		status = http.StatusBadRequest
+	} else {
+		status = http.StatusOK
+	}
+	c.JSON(status, gin.H{
+		"msg":  msg,
+		"logs": logs,
+	})
 }
