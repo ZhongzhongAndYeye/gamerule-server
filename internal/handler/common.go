@@ -1,7 +1,7 @@
 package handler
 
 // 返回消息结构体
-type Request struct {
+type MRsp struct {
 	Status int    `json:"status"`
 	Msg    string `json:"msg"`
 }

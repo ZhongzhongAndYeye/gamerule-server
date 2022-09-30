@@ -9,14 +9,14 @@ import (
 
 func DeleteLog(c *gin.Context){
 	idInfo := &IdInfo{}
-	req := &Request{}
+	rsp := &MRsp{}
 	c.ShouldBindJSON(idInfo)
 	err,msg := model.DeleteLog(idInfo.Id)
-	req.Msg = msg
+	rsp.Msg = msg
 	if err != nil {
-		req.Status = http.StatusBadRequest
+		rsp.Status = http.StatusBadRequest
 	}else{
-		req.Status = http.StatusOK
+		rsp.Status = http.StatusOK
 	}
-	c.JSON(req.Status,req)
+	c.JSON(rsp.Status,rsp)
 }

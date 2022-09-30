@@ -10,15 +10,15 @@ import (
 
 func EditLog(c *gin.Context) {
 	log := &model.Log{}
-	req := &Request{}
+	rsp := &MRsp{}
 	c.ShouldBindJSON(log)
 	var msg string
 	var err error
 	if msg,err = model.EditLog(log);err != nil{
-		req.Status = http.StatusBadRequest
+		rsp.Status = http.StatusBadRequest
 	}else{
-		req.Status = http.StatusOK
+		rsp.Status = http.StatusOK
 	}
-	req.Msg = msg
-	c.JSON(req.Status, req)
+	rsp.Msg = msg
+	c.JSON(rsp.Status, rsp)
 }
